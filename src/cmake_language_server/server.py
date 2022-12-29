@@ -52,8 +52,18 @@ class CMakeLanguageServer(LanguageServer):
         def initialize(params: InitializeParams) -> None:
             opts = params.initialization_options
 
-            cmake = getattr(opts, "cmakeExecutable", "cmake")
-            builddir = getattr(opts, "buildDirectory", "")
+            cmake = (
+                (
+                    opts["cmakeExecutable"] if "cmakeExecutable" in opts else "cmake"
+                )
+                if type(opts) == dict
+                else getattr(opts, "cmakeExecutable", "cmake")
+            )
+            builddir = (
+                (opts["buildDirectory"] if "buildDirectory" in opts else "")
+                if type(opts) == dict
+                else getattr(opts, "buildDirectory", "")
+            )
             logging.info(f"cmakeExecutable={cmake}, buildDirectory={builddir}")
 
             self._api = API(cmake, Path(builddir))
